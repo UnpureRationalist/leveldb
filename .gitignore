@@ -3,6 +3,9 @@
 .vscode
 .DS_Store
 
+# clangd index directory
+.cache
+
 # Build directory.
 build/
 out/
