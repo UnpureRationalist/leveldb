@@ -33,6 +33,7 @@ endif (WIN32)
 option(LEVELDB_BUILD_TESTS "Build LevelDB's unit tests" ON)
 option(LEVELDB_BUILD_BENCHMARKS "Build LevelDB's benchmarks" ON)
 option(LEVELDB_INSTALL "Install LevelDB's header and library" ON)
+option(LEVELDB_DEBUG_ENTRY "LevelDB simple debug entry point" ON)
 
 include(CheckIncludeFile)
 check_include_file("unistd.h" HAVE_UNISTD_H)
@@ -467,6 +468,11 @@ int main() {
     target_link_libraries(db_bench_tree_db kyotocabinet)
   endif(HAVE_KYOTOCABINET)
 endif(LEVELDB_BUILD_BENCHMARKS)
+
+if(LEVELDB_DEBUG_ENTRY)
+  add_executable("test_entry" "benchmarks/test.cc")
+  target_link_libraries("test_entry" leveldb)
+endif(LEVELDB_DEBUG_ENTRY)
 
 if(LEVELDB_INSTALL)
   install(TARGETS leveldb
