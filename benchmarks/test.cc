@@ -32,5 +32,7 @@ int main() {
   assert(it->status().ok());  // Check for any errors found during the scan
   delete it;
 
+  delete db;  // close database
+
   return 0;
 }
