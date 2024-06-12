@@ -11,6 +11,9 @@
 #include <cstdint>
 #include <vector>
 
+#include "port/port.h"
+#include "util/mutexlock.h"
+
 namespace leveldb {
 
 class Arena {
@@ -38,6 +41,9 @@ class Arena {
   char* AllocateFallback(size_t bytes);
   char* AllocateNewBlock(size_t block_bytes);
 
+  // Protect concurrency access of data members
+  port::Mutex mtx_;
+
   // Allocation state
   char* alloc_ptr_;
   size_t alloc_bytes_remaining_;
@@ -57,6 +63,7 @@ inline char* Arena::Allocate(size_t bytes) {
   // 0-byte allocations, so we disallow them here (we don't need
   // them for our internal use).
   assert(bytes > 0);
+  MutexLock lock(&mtx_);
   if (bytes <= alloc_bytes_remaining_) {
     char* result = alloc_ptr_;
     alloc_ptr_ += bytes;

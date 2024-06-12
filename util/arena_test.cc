@@ -4,8 +4,15 @@
 
 #include "util/arena.h"
 
-#include "gtest/gtest.h"
+#include <algorithm>
+#include <cstddef>
+#include <thread>
+#include <unordered_set>
+#include <vector>
+
 #include "util/random.h"
+
+#include "gtest/gtest.h"
 
 namespace leveldb {
 
@@ -55,6 +62,50 @@ TEST(ArenaTest, Simple) {
       // Check the "i"th allocation for the known bit pattern
       ASSERT_EQ(int(p[b]) & 0xff, i % 256);
     }
+  }
+}
+
+void ConcurrencyTest(bool align) {
+  Arena arena;
+  std::unordered_set<char*> thread1_mem;
+  std::unordered_set<char*> thread2_mem;
+  constexpr int allocate_times = 1000000;
+  size_t bytes = 100;
+  std::thread t1([&] {
+    for (int i = 0; i < allocate_times; ++i) {
+      thread1_mem.insert(align ? arena.AllocateAligned(bytes)
+                               : arena.Allocate(bytes));
+    }
+  });
+
+  std::thread t2([&] {
+    for (int i = 0; i < allocate_times; ++i) {
+      thread2_mem.insert(align ? arena.AllocateAligned(bytes)
+                               : arena.Allocate(bytes));
+    }
+  });
+
+  t1.join();
+  t2.join();
+
+  for (auto& ptr : thread2_mem) {
+    ASSERT_EQ(thread1_mem.count(ptr), 0);
+  }
+}
+
+TEST(ArenaTest, ConcurrencyAllocate) {
+  constexpr int test_times = 10;
+
+  for (int i = 0; i < test_times; ++i) {
+    ConcurrencyTest(false);
+  }
+}
+
+TEST(ArenaTest, ConcurrencyAllocateAligned) {
+  constexpr int test_times = 10;
+
+  for (int i = 0; i < test_times; ++i) {
+    ConcurrencyTest(true);
   }
 }
 
