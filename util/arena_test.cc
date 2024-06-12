@@ -4,11 +4,9 @@
 
 #include "util/arena.h"
 
-#include <algorithm>
 #include <cstddef>
 #include <thread>
 #include <unordered_set>
-#include <vector>
 
 #include "util/random.h"
 
