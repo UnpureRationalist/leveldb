@@ -5,6 +5,7 @@
 #include "util/arena.h"
 
 #include <cstddef>
+#include <iostream>
 #include <thread>
 #include <unordered_set>
 
@@ -95,6 +96,7 @@ TEST(ArenaTest, ConcurrencyAllocate) {
   constexpr int test_times = 10;
 
   for (int i = 0; i < test_times; ++i) {
+    std::cout << "Test " << i << " starts, Total " << test_times << std::endl;
     ConcurrencyTest(false);
   }
 }
@@ -103,6 +105,7 @@ TEST(ArenaTest, ConcurrencyAllocateAligned) {
   constexpr int test_times = 10;
 
   for (int i = 0; i < test_times; ++i) {
+    std::cout << "Test " << i << " starts, Total " << test_times << std::endl;
     ConcurrencyTest(true);
   }
 }
